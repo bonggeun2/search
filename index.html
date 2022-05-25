@@ -2,8 +2,8 @@
 <input type="button" onclick="sample5_execDaumPostcode()" value="주소 검색"><br>
 <div id="map" style="width:300px;height:300px;margin-top:10px;display:none"></div>
 
-<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=da1e05ec917997e24561244ee1d946f7&libraries=services"></script>
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=17317296cf3125890fa52f551a57304b&libraries=services"></script>
 <script>
     var mapContainer = document.getElementById('map'), // 지도를 표시할 div
         mapOption = {
@@ -20,6 +20,7 @@
         position: new daum.maps.LatLng(37.537187, 127.005476),
         map: map
     });
+
 
     function sample5_execDaumPostcode() {
         new daum.Postcode({
@@ -48,6 +49,5 @@
                 });
             }
         }).open();
- 
     }
 </script>
