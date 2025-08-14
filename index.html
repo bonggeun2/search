@@ -1,21 +1,100 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>다음 지도 API</title>
-    <style>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<h1>개노답븅신들 쓰레기들의 우당탕탕 여행기</h1>
+<title>시·군·구 랜덤 뽑기 (충남 위쪽)</title>
+<style>
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    padding: 20px;
+    box-sizing: border-box;
+  }
 
+  h1 {
+    font-size: clamp(20px, 5vw, 28px);
+    color: #0d47a1;
+    text-align: center;
+    margin-bottom: 30px;
+  }
 
-    </style>
-  </head>
-  <body>
-    <input type="text" id="sample5_address" placeholder="주소">
-    <input type="button" onclick="sample5_execDaumPostcode()" value="주소 검색"><br>
+  button {
+    padding: 14px 30px;
+    font-size: clamp(16px, 4vw, 20px);
+    border: none;
+    border-radius: 12px;
+    background-color: #1976d2;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: background-color 0.2s ease, transform 0.1s ease;
+  }
 
+  button:hover {
+    background-color: #1565c0;
+  }
 
-    <div id="map" style="width: 50%; height: 50vh"></div>
-    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=17317296cf3125890fa52f551a57304b&libraries=clusterer"></script>
-    <script src="./ad.js"></script>
-  </body>
+  button:active {
+    transform: scale(0.97);
+  }
+
+  #result {
+    font-size: clamp(20px, 5vw, 26px);
+    margin-top: 25px;
+    color: #1b5e20;
+    font-weight: bold;
+    text-align: center;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    max-width: 90%;
+    word-break: keep-all;
+  }
+</style>
+</head>
+<body>
+<h1>시·군·구 랜덤 뽑기 (충남 위쪽)</h1>
+
+<button id="pickBtn">랜덤 뽑기</button>
+<div id="result">지역을 뽑아주세요! 구탈모님!</div>
+
+<script>
+// ES5 문법, 모바일 호환
+var regions = [
+  // 서울특별시
+  "서울특별시 종로구","서울특별시 중구","서울특별시 용산구","서울특별시 성동구","서울특별시 광진구","서울특별시 동대문구","서울특별시 중랑구","서울특별시 성북구","서울특별시 강북구","서울특별시 도봉구","서울특별시 노원구","서울특별시 은평구","서울특별시 서대문구","서울특별시 마포구","서울특별시 양천구","서울특별시 강서구","서울특별시 구로구","서울특별시 금천구","서울특별시 영등포구","서울특별시 동작구","서울특별시 관악구","서울특별시 서초구","서울특별시 강남구","서울특별시 송파구","서울특별시 강동구",
+  // 인천광역시
+  "인천광역시 중구","인천광역시 동구","인천광역시 미추홀구","인천광역시 연수구","인천광역시 남동구","인천광역시 부평구","인천광역시 계양구","인천광역시 서구","인천광역시 강화군","인천광역시 옹진군",
+  // 경기도
+  "경기도 수원시","경기도 성남시","경기도 의정부시","경기도 안양시","경기도 부천시","경기도 광명시","경기도 평택시","경기도 동두천시","경기도 안산시","경기도 고양시","경기도 과천시","경기도 구리시","경기도 남양주시","경기도 오산시","경기도 시흥시","경기도 군포시","경기도 의왕시","경기도 하남시","경기도 용인시","경기도 파주시","경기도 이천시","경기도 안성시","경기도 김포시","경기도 화성시","경기도 광주시","경기도 양주시","경기도 포천시","경기도 여주시","경기도 연천군","경기도 가평군","경기도 양평군",
+  // 강원특별자치도
+  "강원특별자치도 춘천시","강원특별자치도 원주시","강원특별자치도 강릉시","강원특별자치도 동해시","강원특별자치도 태백시","강원특별자치도 속초시","강원특별자치도 삼척시","강원특별자치도 홍천군","강원특별자치도 횡성군","강원특별자치도 영월군","강원특별자치도 평창군","강원특별자치도 정선군","강원특별자치도 철원군","강원특별자치도 화천군","강원특별자치도 양구군","강원특별자치도 인제군","강원특별자치도 고성군","강원특별자치도 양양군",
+  // 충청북도
+  "충청북도 청주시","충청북도 충주시","충청북도 제천시","충청북도 보은군","충청북도 옥천군","충청북도 영동군","충청북도 진천군","충청북도 괴산군","충청북도 음성군","충청북도 단양군","충청북도 증평군",
+  // 세종특별자치시
+  "세종특별자치시"
+];
+
+function pickRandom() {
+  var idx = Math.floor(Math.random() * regions.length);
+  document.getElementById("result").textContent = regions[idx];
+}
+
+// 모바일 호환 이벤트
+document.addEventListener("DOMContentLoaded", function() {
+  var btn = document.getElementById("pickBtn");
+  btn.addEventListener("click", pickRandom);
+  btn.addEventListener("touchstart", pickRandom);
+});
+</script>
+</body>
 </html>
